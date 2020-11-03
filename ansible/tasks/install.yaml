@@ -1,0 +1,42 @@
+# Hadoop
+- name: Unarchive hadoop dist
+  unarchive:
+    src: dist/hadoop-3.3.0.tar.gz
+    dest: /etc
+    creates: /etc/hadoop
+- name: Check directory
+  stat:
+    path: /etc/hadoop
+  register: dir
+- name: Rename directory
+  when: dir.stat.exists == False
+  shell: mv /etc/hadoop-3.3.0 /etc/hadoop
+- name: Change owner
+  file:
+    path: /etc/hadoop
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+# JSVC
+- name: Unarchive Commons Daemon
+  unarchive:
+    src: dist/commons-daemon-1.2.3-src.tar.gz
+    dest: /tmp
+    creates: /tmp/commons-daemon-1.2.3-src
+- name: Configure Commons Daemon
+  shell: ./configure --with-java=/usr/lib/jvm/java-1.8.0-openjdk; make
+  args:
+    chdir: /tmp/commons-daemon-1.2.3-src/src/native/unix
+- name: Copy JSVC
+  copy:
+    remote_src: yes
+    src: /tmp/commons-daemon-1.2.3-src/src/native/unix/jsvc
+    dest: /usr/bin/jsvc
+    mode: 0755
+# libcrypto.so.1.0.0
+- name: Copy libcrypto.so.1.0.0
+  copy:
+    src: files/lib/libcrypto.so.1.0.0
+    dest: /usr/lib64
+    mode: 0755

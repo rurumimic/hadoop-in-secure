@@ -1,0 +1,40 @@
+- name: Set HADOOP_HOME
+  lineinfile:
+    path: /etc/profile
+    line: export HADOOP_HOME=/etc/hadoop
+- name: Set HADOOP PATH
+  copy:
+    dest: /etc/profile.d/custom.sh
+    content: |
+      export PATH=$PATH:$HADOOP_HOME/bin
+      export PATH=$PATH:$HADOOP_HOME/sbin
+- name: Copy configuration files
+  copy:
+    src: "hadoop/{{ item }}"
+    dest: /etc/hadoop/etc/hadoop
+  with_items:
+    - hadoop-env.sh
+    - yarn-env.sh
+    - core-site.xml
+    - hdfs-site.xml
+    - mapred-site.xml
+    - yarn-site.xml
+- name: Copy container-executor.cfg
+  copy:
+    src: hadoop/container-executor.cfg
+    dest: /etc/hadoop/etc/hadoop/container-executor.cfg
+    owner: root
+    group: hadoop
+    mode: 0400
+- name: Set permissions of container-executor
+  file:
+    path: /etc/hadoop/bin/container-executor
+    owner: root
+    group: hadoop
+    mode: 6050
+- name: Log directory
+  file:
+    path: /etc/hadoop/logs
+    state: directory
+    group: hadoop
+    mode: 0775

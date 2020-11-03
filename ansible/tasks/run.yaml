@@ -1,0 +1,40 @@
+# Unstable task
+#################################################################
+# Format directory
+- name: HDFS format namenode
+  become_user: hdfs
+  shell: /etc/hadoop/bin/hdfs namenode -format -force
+  args:
+    executable: /bin/bash
+#################################################################
+# Start
+# HDFS
+- name: Start HDFS NameNode
+  become_user: hdfs
+  shell: /etc/hadoop/bin/hdfs --daemon start namenode
+  args:
+    executable: /bin/bash
+- name: Start HDFS DataNode
+  shell: /etc/hadoop/bin/hdfs --daemon start datanode
+  args:
+    executable: /bin/bash
+# #################################################################
+# Cleanup HDFS
+- import_tasks: filesystem.yaml
+# #################################################################
+# # YARN
+- name: Start YARN Resource Manager
+  become_user: yarn
+  shell: /etc/hadoop/bin/yarn --daemon start resourcemanager
+  args:
+    executable: /bin/bash
+- name: Start YARN Node Manager
+  shell: /etc/hadoop/bin/yarn --daemon start nodemanager
+  args:
+    executable: /bin/bash
+# Job History
+- name: Start Job history server
+  become_user: mapred
+  shell: /etc/hadoop/bin/mapred --daemon start historyserver
+  args:
+    executable: /bin/bash

@@ -1,0 +1,76 @@
+- name: Package download
+  yum:
+    name:
+      # Kerberos Library
+      - krb5-server
+      - krb5-workstation
+      - krb5-libs
+      - libkadm5
+      - words
+- name: Set krb5.conf
+  copy:
+    src: kerberos/krb5.conf
+    dest: /etc/krb5.conf
+    mode: 0644
+- name: Set kdc.conf
+  copy:
+    src: kerberos/kdc.conf
+    dest: /var/kerberos/krb5kdc/kdc.conf
+    mode: 0600
+- name: Set ACL
+  copy:
+    src: kerberos/kadm5.acl
+    dest: /var/kerberos/krb5kdc/kadm5.acl
+    mode: 0600
+- name: If Exists
+  stat:
+    path: /var/kerberos/krb5kdc/principal
+  register: principal
+- name: Set the master password of KDC database
+  when: not principal.stat.exists
+  shell: kdb5_util create -r EXAMPLE.COM -s -P password
+- name: Add admin of KDC database
+  when: not principal.stat.exists
+  shell: kadmin.local -q 'addprinc -pw password admin/admin@EXAMPLE.COM'
+- name: Start krb5kdc
+  systemd:
+    name: krb5kdc
+    state: started
+    enabled: yes
+- name: Start kadmin
+  systemd:
+    name: kadmin
+    state: started
+    enabled: yes
+- name: Is exist keytabs
+  stat:
+    path: /etc/nn.service.keytab
+  register: keytab
+- name: Create a Hadoop keytab
+  when: keytab.stat.exists == False
+  shell: |
+    kadmin -p admin/admin -w password -q 'addprinc -nokey nn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey sn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey dn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey rm/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey nm/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey jhs/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'addprinc -nokey host/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/nn.service.keytab nn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/sn.service.keytab sn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/dn.service.keytab dn/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/rm.service.keytab rm/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/nm.service.keytab nm/my.example.com@EXAMPLE.COM'
+    kadmin -p admin/admin -w password -q 'ktadd -k /etc/jhs.service.keytab jhs/my.example.com@EXAMPLE.COM'
+- name: Change permissions keytabs
+  file:
+    path: "/etc/{{ item }}.service.keytab"
+    group: hadoop
+    mode: 0660
+  with_items:
+    - nn
+    - sn
+    - dn
+    - rm
+    - nm
+    - jhs

@@ -1,0 +1,8 @@
+- name: Instal Java 8
+  yum:
+    name:
+      - java-1.8.0-openjdk-devel
+- name: Export JAVA HOME
+  lineinfile:
+    path: /etc/profile
+    line: export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/jre

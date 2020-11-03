@@ -1,0 +1,9 @@
+- name: Set hosts
+  copy:
+    dest: /etc/hosts
+    content: |
+      127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+      ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+      192.168.9.100 my.example.com my
+- name: Set hostname
+  shell: hostnamectl set-hostname my

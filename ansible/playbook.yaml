@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - import_tasks: tasks/hosts.yaml # /etc/hosts
+    - import_tasks: tasks/user.yaml # Add user: hdfs, yarn, mapred
+    - import_tasks: tasks/kerberos.yaml # Install Kerberos
+    - import_tasks: tasks/java.yaml # Install Java
+    - import_tasks: tasks/install.yaml # Install hadoop, jsvc
+    - import_tasks: tasks/configuration.yaml # Hadoop Configurations
+    # Unstable task. Do it yourself.
+    # - import_tasks: tasks/run.yaml # Start HDFS, YARN, Job History Daemons

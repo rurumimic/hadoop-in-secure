@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<configuration>
+  <property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.env-whitelist</name>
+    <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+  </property>
+
+  <!-- ResourceManager -->
+  <property>
+    <name>yarn.resourcemanager.principal</name>
+    <value>rm/_HOST@EXAMPLE.COM</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.keytab</name>
+    <value>/etc/rm.service.keytab</value>
+  </property>
+  <property>
+    <name>yarn.resourcemanager.webapp.https.address</name>
+    <value>${yarn.resourcemanager.hostname}:8090</value>
+  </property>
+
+  <!-- NodeManager -->
+  <property>
+    <name>yarn.nodemanager.principal</name>
+    <value>nm/_HOST@EXAMPLE.COM</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.keytab</name>
+    <value>/etc/nm.service.keytab</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.container-executor.class</name>
+    <value>org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.linux-container-executor.group</name>
+    <value>hadoop</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.linux-container-executor.path</name>
+    <value>/etc/hadoop/bin/container-executor</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.webapp.https.address</name>
+    <value>0.0.0.0:8044</value>
+  </property>
+</configuration>

@@ -1,0 +1,112 @@
+- name: hadoop group
+  group:
+    name: hadoop
+    state: present
+- name: hdfs
+  user:
+    name: hdfs
+    shell: /bin/bash
+    group: hadoop
+- name: yarn
+  user:
+    name: yarn
+    shell: /bin/bash
+    group: hadoop
+- name: mapred
+  user:
+    name: mapred
+    shell: /bin/bash
+    group: hadoop
+# SSH
+- name: Create .ssh directory
+  file:
+    path: /root/.ssh
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+- name: Copy ssh key
+  copy:
+    src: "insecure/{{ item }}"
+    dest: /root/.ssh
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - id_rsa
+    - authorized_keys
+- name: Copy ssh pub
+  copy:
+    src: insecure/id_rsa.pub
+    dest: /root/.ssh
+    owner: root
+    group: root
+    mode: 0644
+# Other users
+- name: Create .ssh directory
+  become_user: "{{ item }}"
+  file:
+    path: "/home/{{ item }}/.ssh"
+    state: directory
+    owner: "{{ item }}"
+    group: hadoop
+    mode: 0700
+  with_items:
+    - hdfs
+    - yarn
+    - mapred
+- name: Copy ssh key
+  become_user: "{{ item }}"
+  copy:
+    src: insecure/id_rsa
+    dest: "/home/{{ item }}/.ssh"
+    owner: "{{ item }}"
+    group: hadoop
+    mode: 0600
+  with_items:
+    - hdfs
+    - yarn
+    - mapred
+- name: Copy ssh key
+  become_user: "{{ item }}"
+  copy:
+    src: insecure/authorized_keys
+    dest: "/home/{{ item }}/.ssh"
+    owner: "{{ item }}"
+    group: hadoop
+    mode: 0600
+  with_items:
+    - hdfs
+    - yarn
+    - mapred
+- name: Copy ssh pub
+  become_user: "{{ item }}"
+  copy:
+    src: insecure/id_rsa.pub
+    dest: "/home/{{ item }}/.ssh"
+    owner: "{{ item }}"
+    group: hadoop
+    mode: 0644
+  with_items:
+    - hdfs
+    - yarn
+    - mapred
+# Add to known hosts
+- name: Get keyscan
+  shell: ssh-keyscan -t ecdsa 192.168.9.100
+  register: keyscan
+- name: Add known hosts root
+  lineinfile:
+    name: /root/.ssh/known_hosts
+    create: yes
+    line: "{{ keyscan.stdout }}"
+- name: Add known hosts
+  become_user: "{{ item }}"
+  lineinfile:
+    name: "/home/{{ item }}/.ssh/known_hosts"
+    create: yes
+    line: "{{ keyscan.stdout }}"
+  with_items:
+    - hdfs
+    - yarn
+    - mapred
