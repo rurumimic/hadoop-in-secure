@@ -63,7 +63,7 @@ sudo su - hdfs -c '/etc/hadoop/bin/hdfs --daemon start namenode'
 ### HDFS 데이터노드 실행
 
 ```bash
-sudo /etc/hadoop/bin/hdfs --daemon start namenode
+sudo /etc/hadoop/bin/hdfs --daemon start datanode
 ```
 
 ### HDFS 파일시스템 설정
@@ -81,20 +81,15 @@ sudo su - hdfs -c '/etc/hadoop/bin/hdfs dfs -ls -R /'
 ```
 
 ```bash
-drwxrwxrwt   - mapred hadoop    0 2020-11-03 09:09 /mr-history
-drwxr-x---   - mapred hadoop    0 2020-11-03 09:09 /mr-history/done
-drwxrwxrwt   - mapred hadoop    0 2020-11-03 09:09 /mr-history/tmp
-drwxrwxrwt   - hdfs   hadoop    0 2020-11-03 13:49 /tmp
-drwxrwx---   - mapred hadoop    0 2020-11-03 13:49 /tmp/hadoop-yarn
-drwxrwx---   - mapred hadoop    0 2020-11-03 13:49 /tmp/hadoop-yarn/staging
-drwxrwx---   - mapred hadoop    0 2020-11-03 13:49 /tmp/hadoop-yarn/staging/history
-drwxrwx---   - mapred hadoop    0 2020-11-03 13:49 /tmp/hadoop-yarn/staging/history/done
-drwxrwxrwt   - mapred hadoop    0 2020-11-03 13:49 /tmp/hadoop-yarn/staging/history/done_intermediate
-drwxrwxrwt   - yarn   hadoop    0 2020-11-03 09:08 /tmp/logs
-drwxr-xr-x   - hdfs   hadoop    0 2020-11-03 09:08 /user
-drwx------   - hdfs   hadoop    0 2020-11-03 09:08 /user/hdfs
-drwx------   - mapred hadoop    0 2020-11-03 09:08 /user/mapred
-drwx------   - yarn   hadoop    0 2020-11-03 09:08 /user/yarn
+drwxrwxrwt   - mapred hadoop          0 2020-11-04 00:29 /mr-history
+drwxr-x---   - mapred hadoop          0 2020-11-04 00:29 /mr-history/done
+drwxrwxrwt   - mapred hadoop          0 2020-11-04 00:29 /mr-history/tmp
+drwxrwxrwt   - hdfs   hadoop          0 2020-11-04 00:28 /tmp
+drwxrwxrwt   - yarn   hadoop          0 2020-11-04 00:28 /tmp/logs
+drwxr-xr-x   - hdfs   hadoop          0 2020-11-04 00:28 /user
+drwx------   - hdfs   hadoop          0 2020-11-04 00:28 /user/hdfs
+drwx------   - mapred hadoop          0 2020-11-04 00:28 /user/mapred
+drwx------   - yarn   hadoop          0 2020-11-04 00:28 /user/yarn
 ```
 
 ### YARN 리소스매니저 실행
@@ -120,7 +115,7 @@ sudo su - mapred -c '/etc/hadoop/bin/mapred --daemon start historyserver'
 ## 실행 중인 서버 목록
 
 ```bash
-jps # Java Virtual Machine Process Status Tool
+sudo jps # Java Virtual Machine Process Status Tool
 ```
 
 ```bash
@@ -146,8 +141,8 @@ jps # Java Virtual Machine Process Status Tool
 
 ## 테스트
 
-1. 권한 없는 HDFS 접근
-1. 권한 획득
+1. 권한 없이 HDFS 접근
+1. 사용자 인증
 1. HDFS 접근
 1. MapReduce 작업 실행
 1. 결과 확인
@@ -159,7 +154,7 @@ export HADOOP_HOME=/etc/hadoop
 export PATH=$PATH:$HADOOP_HOME/bin
 ```
 
-### HDFS 접근 확인
+### HDFS 접근 에러 확인
 
 `vagrant` 유저는 HDFS에 접근할 수 없다.
 
@@ -184,14 +179,14 @@ sudo su - hdfs -c '/etc/hadoop/bin/hdfs dfs -chmod 700 /user/vagrant'
 
 ```bash
 sudo kadmin -p admin/admin -w password -q 'addprinc -pw password vagrant/my.example.com@EXAMPLE.COM'
-sudo kadmin -p admin/admin -w password -q 'ktadd -k /home/vagrant/vagrant.keytab vagrant/my.example.com@EXAMPLE.COM'
-sudo chown vagrant:vagrant /home/vagrant/vagrant.keytab
 ```
 
 ### Kerberos 티켓 생성
 
 ```bash
-kinit -k -t /home/vagrant/vagrant.keytab vagrant/my.example.com@EXAMPLE.COM
+kinit vagrant/my.example.com@EXAMPLE.COM
+
+Password for vagrant/my.example.com@EXAMPLE.COM: password
 ```
 
 ### Kerberos 티켓 확인
@@ -204,9 +199,9 @@ klist
 Ticket cache: FILE:/tmp/krb5cc_1000
 Default principal: vagrant/my.example.com@EXAMPLE.COM
 
-Valid starting     Expires            Service principal
-11/03/20 14:37:44  11/04/20 02:37:44  krbtgt/EXAMPLE.COM@EXAMPLE.COM
-	renew until 11/04/20 14:37:44
+Valid starting       Expires              Service principal
+11/04/2020 00:32:15  11/04/2020 12:32:15  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+        renew until 11/05/2020 00:32:15
 ```
 
 ### HDFS 접근 확인
@@ -216,21 +211,21 @@ hdfs dfs -ls -R /
 ```
 
 ```bash
-drwxrwxrwt   - mapred hadoop          0 2020-11-03 09:09 /mr-history
-drwxr-x---   - mapred hadoop          0 2020-11-03 09:09 /mr-history/done
+drwxrwxrwt   - mapred hadoop          0 2020-11-04 00:29 /mr-history
+drwxr-x---   - mapred hadoop          0 2020-11-04 00:29 /mr-history/done
 ls: Permission denied: user=vagrant, access=READ_EXECUTE, inode="/mr-history/done":mapred:hadoop:drwxr-x---
-drwxrwxrwt   - mapred hadoop          0 2020-11-03 09:09 /mr-history/tmp
-drwxrwxrwt   - hdfs   hadoop          0 2020-11-03 13:49 /tmp
-drwxrwx---   - mapred hadoop          0 2020-11-03 13:49 /tmp/hadoop-yarn
+drwxrwxrwt   - mapred hadoop          0 2020-11-04 00:29 /mr-history/tmp
+drwxrwxrwt   - hdfs   hadoop          0 2020-11-04 00:31 /tmp
+drwxrwx---   - mapred hadoop          0 2020-11-04 00:31 /tmp/hadoop-yarn
 ls: Permission denied: user=vagrant, access=READ_EXECUTE, inode="/tmp/hadoop-yarn":mapred:hadoop:drwxrwx---
-drwxrwxrwt   - yarn   hadoop          0 2020-11-03 09:08 /tmp/logs
-drwxr-xr-x   - hdfs   hadoop          0 2020-11-03 14:19 /user
-drwx------   - hdfs    hadoop          0 2020-11-03 09:08 /user/hdfs
+drwxrwxrwt   - yarn   hadoop          0 2020-11-04 00:28 /tmp/logs
+drwxr-xr-x   - hdfs   hadoop          0 2020-11-04 00:31 /user
+drwx------   - hdfs    hadoop          0 2020-11-04 00:28 /user/hdfs
 ls: Permission denied: user=vagrant, access=READ_EXECUTE, inode="/user/hdfs":hdfs:hadoop:drwx------
-drwx------   - mapred  hadoop          0 2020-11-03 09:08 /user/mapred
+drwx------   - mapred  hadoop          0 2020-11-04 00:28 /user/mapred
 ls: Permission denied: user=vagrant, access=READ_EXECUTE, inode="/user/mapred":mapred:hadoop:drwx------
-drwx------   - vagrant hadoop          0 2020-11-03 14:19 /user/vagrant
-drwx------   - yarn    hadoop          0 2020-11-03 09:08 /user/yarn
+drwx------   - vagrant hadoop          0 2020-11-04 00:31 /user/vagrant
+drwx------   - yarn    hadoop          0 2020-11-04 00:28 /user/yarn
 ls: Permission denied: user=vagrant, access=READ_EXECUTE, inode="/user/yarn":yarn:hadoop:drwx------
 ```
 
@@ -247,13 +242,23 @@ hdfs dfs -copyFromLocal $HADOOP_HOME/etc/hadoop/*.xml input
 hdfs dfs -ls /user/vagrant/input
 ```
 
-### 맵리듀스 작업 실행
-
-작업 디렉터리 권한 추가:
+### 작업 디렉터리 권한 추가
 
 ```bash
 sudo su - hdfs -c '/etc/hadoop/bin/hdfs dfs -chmod -R 777 /tmp/hadoop-yarn'
 ```
+
+---
+
+## 맵리듀스 예제
+
+### 테스트 목록
+
+```bash
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.0.jar
+```
+
+### 예제 실행
 
 맵리듀스 예제 실행
 
@@ -266,41 +271,40 @@ grep input output 'dfs[a-z.]+'
 #### 실행 로그
 
 ```log
-2020-11-03 14:50:04,558 INFO client.DefaultNoHARMFailoverProxyProvider: Connecting to ResourceManager at /0.0.0.0:8032
-2020-11-03 14:50:04,845 INFO hdfs.DFSClient: Created token for vagrant: HDFS_DELEGATION_TOKEN owner=vagrant/my.example.com@EXAMPLE.COM, renewer=yarn, realUser=, issueDate=1604415004831, maxDate=1605019804831, sequenceNumber=3, masterKeyId=4 on 192.168.9.100:9000
+2020-11-04 00:34:16,786 INFO client.DefaultNoHARMFailoverProxyProvider: Connecting to ResourceManager at /0.0.0.0:8032
+2020-11-04 00:34:17,113 INFO hdfs.DFSClient: Created token for vagrant: HDFS_DELEGATION_TOKEN owner=vagrant/my.example.com@EXAMPLE.COM, renewer=yarn, realUser=, issueDate=1604450057092, maxDate=1605054857092, sequenceNumber=1, masterKeyId=2 on 192.168.9.100:9000
 ```
 
 ```log
-2020-11-03 14:50:07,437 INFO mapreduce.Job: Running job: job_1604411286063_0001
-2020-11-03 14:50:15,688 INFO mapreduce.Job: Job job_1604411286063_0001 running in uber mode : false
-2020-11-03 14:50:15,689 INFO mapreduce.Job:  map 0% reduce 0%
-2020-11-03 14:50:27,950 INFO mapreduce.Job:  map 60% reduce 0%
-2020-11-03 14:50:37,062 INFO mapreduce.Job:  map 80% reduce 0%
-2020-11-03 14:50:38,078 INFO mapreduce.Job:  map 100% reduce 100%
-2020-11-03 14:50:40,098 INFO mapreduce.Job: Job job_1604411286063_0001 completed successfully
+2020-11-04 00:35:01,108 INFO mapreduce.Job: Running job: job_1604449775800_0002
+2020-11-04 00:35:11,295 INFO mapreduce.Job: Job job_1604449775800_0002 running in uber mode : false
+2020-11-04 00:35:11,296 INFO mapreduce.Job:  map 0% reduce 0%
+2020-11-04 00:35:16,356 INFO mapreduce.Job:  map 100% reduce 0%
+2020-11-04 00:35:20,395 INFO mapreduce.Job:  map 100% reduce 100%
+2020-11-04 00:35:21,411 INFO mapreduce.Job: Job job_1604449775800_0002 completed successfully
 ```
 
 ```log
 Map-Reduce Framework
-		Map input records=19
-		Map output records=19
-		Map output bytes=701
-		Map output materialized bytes=745
-		Input split bytes=137
-		Combine input records=0
-		Combine output records=0
-		Reduce input groups=2
-		Reduce shuffle bytes=745
-		Reduce input records=19
-		Reduce output records=19
-		Spilled Records=38
-		Shuffled Maps =1
-		Failed Shuffles=0
-		Merged Map outputs=1
-	File Input Format Counters 
-		Bytes Read=939
-	File Output Format Counters 
-		Bytes Written=587
+    Map input records=19
+    Map output records=19
+    Map output bytes=701
+    Map output materialized bytes=745
+    Input split bytes=138
+    Combine input records=0
+    Combine output records=0
+    Reduce input groups=2
+    Reduce shuffle bytes=745
+    Reduce input records=19
+    Reduce output records=19
+    Spilled Records=38
+    Shuffled Maps =1
+    Failed Shuffles=0
+    Merged Map outputs=1
+File Input Format Counters 
+    Bytes Read=939
+File Output Format Counters 
+    Bytes Written=587
 ```
 
 ### 결과 확인
@@ -313,8 +317,8 @@ hdfs dfs -ls output
 
 ```bash
 Found 2 items
--rw-r--r--   1 vagrant hadoop          0 2020-11-03 14:51 output/_SUCCESS
--rw-r--r--   1 vagrant hadoop        587 2020-11-03 14:50 output/part-r-00000
+-rw-r--r--   1 vagrant hadoop          0 2020-11-04 00:35 output/_SUCCESS
+-rw-r--r--   1 vagrant hadoop        587 2020-11-04 00:35 output/part-r-00000
 ```
 
 #### 맵리듀스 결과 파일
@@ -345,12 +349,37 @@ hdfs dfs -cat output/*
 1	dfs.block.access.token.enable
 ```
 
-### Web Interface 확인
+---
 
-#### ResourceManager
+## Yarn 예제
+
+### 환경변수 설정
+
+```bash
+export YARN_EXAMPLES=/etc/hadoop/share/hadoop/mapreduce
+```
+
+### Pi 계산 예제
+
+```bash
+yarn jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.0.jar pi 16 100000
+```
+
+### 결과
+
+```bash
+Job Finished in 39.101 seconds
+Estimated value of Pi is 3.14157500000000000000
+```
+
+---
+
+## Web Interface 확인
+
+### ResourceManager
 
 ![](images/ResourceManager.png)
 
-#### JobHistory
+### JobHistory
 
 ![](images/JobHistory.png)

@@ -26,11 +26,14 @@
     owner: root
     group: hadoop
     mode: 0400
-- name: Set permissions of container-executor
+- name: Set group of container-executor
   file:
     path: /etc/hadoop/bin/container-executor
     owner: root
     group: hadoop
+- name: Set permissions of container-executor
+  file:
+    path: /etc/hadoop/bin/container-executor
     mode: 6050
 - name: Log directory
   file:
