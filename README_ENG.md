@@ -17,12 +17,18 @@ Download the `hadoop-3.3.0.tar.gz` file to the `ansible/files/dist` path.
 - [Hadoop Mirrors](http://www.apache.org/dyn/closer.cgi/hadoop/common/)
 - Index of [/hadoop/common/hadoop-3.3.0](https://downloads.apache.org/hadoop/common/hadoop-3.3.0/)
 
+```
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.0/hadoop-3.3.0.tar.gz
+```
 ### Apache Commons Daemon 1.2.3
 
 Download the `commons-daemon-1.2.3-src.tar.gz` file to the `ansible/files/dist` path. 
 
 - Index of [/dist/commons/daemon/source](https://downloads.apache.org/commons/daemon/source/)
 
+```
+wget https://archive.apache.org/dist/commons/daemon/source/commons-daemon-1.2.3-src.tar.gz
+```
 ---
 
 ## Software
