@@ -13,12 +13,13 @@ Create a directory.
 
 ### Hadoop 3.3.0
 
-Download the `hadoop-3.3.0.tar.gz` file to the `ansible/files/dist` path.
+Download the hadoop-3.3.0.tar.gz file to the created dir.
 
 - [Hadoop Mirrors](http://www.apache.org/dyn/closer.cgi/hadoop/common/)
 - Index of [/hadoop/common/hadoop-3.3.0](https://downloads.apache.org/hadoop/common/hadoop-3.3.0/)
 
 ```
+cd ansible/files/dist
 wget https://downloads.apache.org/hadoop/common/hadoop-3.3.0/hadoop-3.3.0.tar.gz
 ```
 ### Apache Commons Daemon 1.2.3
