@@ -8,7 +8,8 @@ When running Hadoop in secure mode, all Hadoop services and users must authentic
 
 ## Download
 
-`ansible/files/dist` Create a directory. 
+Create a directory.
+`mkdir ansible/files/dist`  
 
 ### Hadoop 3.3.0
 
