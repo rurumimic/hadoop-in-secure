@@ -33,7 +33,8 @@ Build a virtual machine cluster in a local environment using Vagrant, VirtualBox
 - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
-```curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+```
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 sudo apt-get update && sudo apt-get install vagrant
 ```
