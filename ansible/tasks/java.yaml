@@ -1,4 +1,4 @@
-- name: Instal Java 8
+- name: Install Java 8
   yum:
     name:
       - java-1.8.0-openjdk-devel
